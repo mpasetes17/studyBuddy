@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Study Buddy Search</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+  </head>
+  <body>
+    <div id="content">
+      <h1>Search for a Buddy</h1>
+      <div class ="row">
+          <div class="column left">
+            <form id="search-form" method="POST" class="blackBorder">
+                <p>Searching As:</p>
+                <div id="user-container">
+                    <!-- TODO: fill this field with log in data -->
+                    <p>&emsp;John Doe</br>&emsp;jdoe@university.edu</p>
+                </div>
+                <label>Subject Area:</label>
+                </br>
+                <select id="subject-select">
+                    <option value="">--SUBJECT--</option>
+                    <option value="computer science">Computer Science</option>
+                    <option value="english">English</option>
+                    <option value="math">Math</option>
+                    <option value="physics">Physics</option>
+                </select>
+                </br></br>
+                <input type="submit"/>
+            </form>
+          </div>
+          <div class="column right">
+              <a href="index.html">Log out</a>
+          </div>
+      </div>
+      <div id="search-results" class="blackBorder">
+          <p>SEARCH RESULTS RETURNED HERE</p>
+      </div>
+    </div>
+  </body>
+</html>
