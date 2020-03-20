@@ -19,14 +19,133 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 
-/** Servlet that returns some example content. TODO: modify this file to handle comments data */
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.Filter;
+import com.google.appengine.api.datastore.Query.FilterPredicate;
+import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.gson.Gson; 
+
+import com.google.sps.models.Student;
+
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
 
+    // Value to filter students by while Querying.
+    private String subject;
+
+/********************
+Handles GET requests
+********************/
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    response.setContentType("text/html;");
-    response.getWriter().println("<h1>Hello world!</h1>");
+    // TODO Integrate UserService
+    final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    
+    // Query Datastore
+    Filter subject_filter = new FilterPredicate("subject", FilterOperator.EQUAL, this.subject);
+    Query query = new Query("Student");
+    query.setFilter(subject_filter);
+    query.addSort("timestamp", SortDirection.DESCENDING);
+    PreparedQuery results = datastore.prepare(query);
+
+    ArrayList <Student> students = new ArrayList<>();
+
+    // Scan results and add the in the students ArrayList
+    for (Entity entity: results.asIterable()){
+        Student current_student = createStudentFromEntity(entity);
+        students.add(current_student);
+    }
+
+    // Return a JSON response of the results
+    response.setContentType("application/json;");
+    response.getWriter().println(convertToJson(students));
+  }
+
+/********************
+Handles POST requests
+********************/
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException{
+    // TODO Integrate UserService
+    final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+    // Get selected subject from the POST request                       
+    this.subject = getParameter(request, "subject-select", "null");  // NOTE: (Query filters students by this subject)
+
+    // Create student entity
+    Entity student_entity = createStudentEntity(this.subject);
+
+    // Post Student student entity
+    datastore.put(student_entity);
+
+    // Redirect back to the search page
+    response.sendRedirect("/search.html");
+
+  }
+
+/**************************************************
+Takes Entity properties and returns a Student entity 
+based on the properties.
+***************************************************/
+private Entity createStudentEntity(String subject){
+    // TODO: replace hard-coded properties with real ones  
+
+    Entity stu_entity = new Entity("Student");
+    stu_entity.setProperty("first_name", "John");
+    stu_entity.setProperty("last_name", "Doe");
+    stu_entity.setProperty("email", "jdoe@university.edu");
+    stu_entity.setProperty("school", "university");
+    stu_entity.setProperty("subject", subject);
+    stu_entity.setProperty("timestamp", System.currentTimeMillis());
+
+    return stu_entity;    
+}
+
+/****************************************************
+Takes a Student entity and returns a Student Object
+based on the entity.
+*****************************************************/
+  private Student createStudentFromEntity(Entity theStudentEntity){
+      final String first_name = (String)theStudentEntity.getProperty("first_name"); 
+      final String last_name = (String)theStudentEntity.getProperty("last_name");
+      final String email = (String)theStudentEntity.getProperty("email");
+      final String school = (String)theStudentEntity.getProperty("school");
+      final String subject = (String)theStudentEntity.getProperty("subject");
+      final long timestamp = (long)theStudentEntity.getProperty("timestamp");
+
+      return new Student(first_name, last_name, school, subject, timestamp);
+  }
+
+/*************************************************
+Takes an ArrayList and returns a Json String
+based on the Arraylist.
+************************************************/
+  private String convertToJson(ArrayList list){
+      Gson gson = new Gson();
+      return gson.toJson(list);
+  }
+
+/***************************************************
+Parameters: 
+1. An HttpServletRequest 
+2. A value_name
+3. A default value
+
+Returns the value i.e(Subject) from the POST request
+if defined, otherwise returns default value 
+****************************************************/
+ private String getParameter(HttpServletRequest request, String value_name, String defaultValue){
+      String value = request.getParameter(value_name);
+
+      if(value == null){
+          return defaultValue;
+      }else return value;
   }
 }
