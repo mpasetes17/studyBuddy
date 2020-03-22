@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
 /**
  * Adds a random greeting to the page.
  */
@@ -25,4 +26,21 @@ function addRandomGreeting() {
   // Add it to the page.
   const greetingContainer = document.getElementById('greeting-container');
   greetingContainer.innerText = greeting;
+}
+
+/*
+ * Get the subject from html
+ */
+function getSubject(){
+    //get the subject to send to our servlet
+}
+
+/**
+ * Fetches the information to put in the html from our data
+ */
+function getTable() {
+fetch('/data').then(response => response.json()).then((myData) => {
+    const tableContainer = document.getElementById('search-results');
+    console.log("myData in getTable()" + myData);
+    tableContainer.innerText = myData; });
 }

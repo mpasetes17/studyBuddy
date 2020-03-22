@@ -15,10 +15,13 @@
 package com.google.sps.servlets;
 
 import java.io.IOException;
+import com.google.gson.Gson;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import com.google.gson.Gson;
+
 
 /** Servlet that returns some example content. TODO: modify this file to handle comments data */
 @WebServlet("/data")
@@ -29,4 +32,26 @@ public class DataServlet extends HttpServlet {
     response.setContentType("text/html;");
     response.getWriter().println("<h1>Hello world!</h1>");
   }
+  
+  //returns proper info from dataStore
+  @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        //creates entity
+        //gets stuff from data store iteratively
+        System.out.println("is this being called?");
+        String returnJSON = convertToJsonUsingGson("Stephanie Hernandez Math sgh005@ucsd.edu");
+        // Send the JSON as the response
+        response.setContentType("application/json;");
+        response.getWriter().println(returnJSON);
+    }
+  /**
+   * Converts an String (for now) into a JSON string using the Gson library. Note: We first added
+   * the Gson library dependency to pom.xml.
+   */
+  private String convertToJsonUsingGson(String myString) {
+    Gson gson = new Gson();
+    String json = gson.toJson(myString);
+    return json;
+  }
 }
+
