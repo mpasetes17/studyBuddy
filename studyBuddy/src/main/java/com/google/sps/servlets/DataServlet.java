@@ -34,42 +34,39 @@ import com.google.gson.Gson;
 
 import com.google.sps.models.Student;
 
-@WebServlet("/data")
+@WebServlet("/matches")
 public class DataServlet extends HttpServlet {
 
     // Value to filter students by while Querying.
     private String subject;
 
-/********************
-Handles GET requests
-********************/
-  @Override
-  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+/******************************************************************
+Queries DataStore and returns a Json formatted String of the result
+********************************************************************/
+private String QueryDataStore(){
     // TODO Integrate UserService
     final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     
-    // Query Datastore
+    // Querying         TODO : Integrate Filtering by School
     Filter subject_filter = new FilterPredicate("subject", FilterOperator.EQUAL, this.subject);
     Query query = new Query("Student");
     query.setFilter(subject_filter);
     query.addSort("timestamp", SortDirection.DESCENDING);
-    PreparedQuery results = datastore.prepare(query);
+    PreparedQuery results = datastore.prepare(query); 
 
-    ArrayList <Student> students = new ArrayList<>();
+    ArrayList <Student> studentList = new ArrayList<>();
 
-    // Scan results and add the in the students ArrayList
+    // Scan results and add them in the studentList
     for (Entity entity: results.asIterable()){
         Student current_student = createStudentFromEntity(entity);
-        students.add(current_student);
+        studentList.add(current_student);
     }
 
-    // Return a JSON response of the results
-    response.setContentType("application/json;");
-    response.getWriter().println(convertToJson(students));
-  }
+return convertToJson(studentList);
+}
 
 /********************
-Handles POST requests
+Handles POST request
 ********************/
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException{
@@ -85,9 +82,9 @@ Handles POST requests
     // Post Student student entity
     datastore.put(student_entity);
 
-    // Redirect back to the search page
-    response.sendRedirect("/search.html");
-
+    // Return a JSON response of the results
+    response.setContentType("application/json;");
+    response.getWriter().println(QueryDataStore());
   }
 
 /**************************************************
@@ -95,11 +92,11 @@ Takes Entity properties and returns a Student entity
 based on the properties.
 ***************************************************/
 private Entity createStudentEntity(String subject){
-    // TODO: replace hard-coded properties with real ones  
+    // TODO: replace hard-coded email and school with real ones  
 
     Entity stu_entity = new Entity("Student");
-    stu_entity.setProperty("first_name", "John");
-    stu_entity.setProperty("last_name", "Doe");
+    stu_entity.setProperty("first_name", "NULL");
+    stu_entity.setProperty("last_name", "NULL");
     stu_entity.setProperty("email", "jdoe@university.edu");
     stu_entity.setProperty("school", "university");
     stu_entity.setProperty("subject", subject);
@@ -134,7 +131,7 @@ based on the Arraylist.
 
 /***************************************************
 Parameters: 
-1. An HttpServletRequest 
+1. An HttpServletRequest
 2. A value_name
 3. A default value
 
