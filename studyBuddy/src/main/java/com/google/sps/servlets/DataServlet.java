@@ -37,18 +37,16 @@ import com.google.sps.models.Student;
 @WebServlet("/matches")
 public class DataServlet extends HttpServlet {
 
-    // Value to filter students by while Querying.
-    private String subject;
 
 /******************************************************************
 Queries DataStore and returns a Json formatted String of the result
 ********************************************************************/
-private String QueryDataStore(){
+private String QueryDataStore(String subject){
     // TODO Integrate UserService
     final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     
     // Querying         TODO : Integrate Filtering by School
-    Filter subject_filter = new FilterPredicate("subject", FilterOperator.EQUAL, this.subject);
+    Filter subject_filter = new FilterPredicate("subject", FilterOperator.EQUAL, subject);
     Query query = new Query("Student");
     query.setFilter(subject_filter);
     query.addSort("timestamp", SortDirection.DESCENDING);
@@ -74,17 +72,20 @@ Handles POST request
     final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
     // Get selected subject from the POST request                       
-    this.subject = getParameter(request, "subject-select", "null");  // NOTE: (Query filters students by this subject)
+    String subject = getParameter(request, "subject-select", "null");  // NOTE: (Query filters students by this subject)
+    
+    // Find matches for the current user
+    String matches = QueryDataStore(subject);
 
-    // Create student entity
-    Entity student_entity = createStudentEntity(this.subject);
+    // Create current student entity
+    Entity student_entity = createStudentEntity(subject);
 
-    // Post Student student entity
+    // Append current student in datastore
     datastore.put(student_entity);
 
     // Return a JSON response of the results
     response.setContentType("application/json;");
-    response.getWriter().println(QueryDataStore());
+    response.getWriter().println(matches);
   }
 
 /**************************************************
