@@ -39,7 +39,7 @@ function getSubject(){
  * Fetches the information to put in the html from our data
  */
 function getTable() {
-fetch('/data').then(response => response.json()).then((myData) => {
+fetch('/data', {method: "POST"}).then(response => response.json()).then((myData) => {
     const tableContainer = document.getElementById('search-results');
     console.log("myData in getTable()" + myData);
     tableContainer.innerText = myData; });
