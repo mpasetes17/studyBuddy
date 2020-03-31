@@ -30,9 +30,12 @@ import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gson.Gson; 
 
 import com.google.sps.models.entitymodels.Student;
+import com.google.sps.models.authmodels.AuthInfo;
 
 @WebServlet("/matches")
 public class DataServlet extends HttpServlet {
@@ -70,12 +73,14 @@ Handles POST request
     // Get selected subject from the POST request                       
     String subject = getParameter(request, "subject-select", "null");  // NOTE: (Query filters students by this subject)
     
+    /*TODO: Find a way to make this logic work
     // Checks if a subject was submitted
-    if(subject == "null"){  //TODO: Find a way to make this condition True
+    if(subject == "null"){  
         response.setContentType("application/json;");
         response.getWriter().println("Error: No Subject Submitted!");
         return;
     }
+    */
 
     // Access Datastore Services
     final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
@@ -83,29 +88,39 @@ Handles POST request
     // Find matches for the current user
     String matches = QueryDataStore(subject, datastore);
 
-    // Create current student entity
-    Entity student_entity = createStudentEntity(subject);
+    // Get Authentic User's Loggin Information
+    UserService userService = UserServiceFactory.getUserService();
+    if(userService.isUserLoggedIn()){
 
-    // Append current student in datastore
-    datastore.put(student_entity);
+        // Create current student entity
+        AuthInfo loginInfo = new AuthInfo();
+        loginInfo.setEmail(userService.getCurrentUser().getEmail());
+        Entity student_entity = createStudentEntity(subject, loginInfo);
+        
+        // Append current student in datastore
+        datastore.put(student_entity);
 
-    // Return a JSON response of the results
-    response.setContentType("application/json;");
-    response.getWriter().println(matches);
+        // Return a JSON response of the results
+        response.setContentType("application/json;");
+        response.getWriter().println(matches);
+    }else{
+        String loginLink = userService.createLoginURL("/");
+        response.sendRedirect(loginLink);
+    }    
   }
 
 /**************************************************
 Takes Entity properties and returns a Student entity 
 based on the properties.
 ***************************************************/
-private Entity createStudentEntity(String subject){
-    // TODO: replace hard-coded email and school with real ones  
+private Entity createStudentEntity(String subject, AuthInfo loginInfo){
+    // TODO: replace hardcoded school with real ones  
 
     Entity stu_entity = new Entity("Student");
     stu_entity.setProperty("first_name", "NULL");
     stu_entity.setProperty("last_name", "NULL");
-    stu_entity.setProperty("email", "jdoe@university.edu");
-    stu_entity.setProperty("school", "university");
+    stu_entity.setProperty("email", loginInfo.getEmail());
+    stu_entity.setProperty("school", "NULL");
     stu_entity.setProperty("subject", subject);
     stu_entity.setProperty("timestamp", System.currentTimeMillis());
 
@@ -149,7 +164,6 @@ if defined, otherwise returns default value
       String value = request.getParameter(value_name);
     
       if(value == ""){
-          System.out.println("---------------Subject is: " + value);
           return defaultValue;
       }else return value;
   }
