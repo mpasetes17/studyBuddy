@@ -32,7 +32,7 @@ import com.google.appengine.api.datastore.Query.FilterOperator;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.gson.Gson; 
 
-import com.google.sps.models.Student;
+import com.google.sps.models.entitymodels.Student;
 
 @WebServlet("/matches")
 public class DataServlet extends HttpServlet {
@@ -41,9 +41,7 @@ public class DataServlet extends HttpServlet {
 /******************************************************************
 Queries DataStore and returns a Json formatted String of the result
 ********************************************************************/
-private String QueryDataStore(String subject){
-    // TODO Integrate UserService
-    final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+private String QueryDataStore(String subject, DatastoreService datastore){
     
     // Querying         TODO : Integrate Filtering by School
     Filter subject_filter = new FilterPredicate("subject", FilterOperator.EQUAL, subject);
@@ -68,14 +66,22 @@ Handles POST request
 ********************/
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException{
-    // TODO Integrate UserService
-    final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-
+    
     // Get selected subject from the POST request                       
     String subject = getParameter(request, "subject-select", "null");  // NOTE: (Query filters students by this subject)
     
+    // Checks if a subject was submitted
+    if(subject == "null"){  //TODO: Find a way to make this condition True
+        response.setContentType("application/json;");
+        response.getWriter().println("Error: No Subject Submitted!");
+        return;
+    }
+
+    // Access Datastore Services
+    final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
     // Find matches for the current user
-    String matches = QueryDataStore(subject);
+    String matches = QueryDataStore(subject, datastore);
 
     // Create current student entity
     Entity student_entity = createStudentEntity(subject);
@@ -141,8 +147,9 @@ if defined, otherwise returns default value
 ****************************************************/
  private String getParameter(HttpServletRequest request, String value_name, String defaultValue){
       String value = request.getParameter(value_name);
-
-      if(value == null){
+    
+      if(value == ""){
+          System.out.println("---------------Subject is: " + value);
           return defaultValue;
       }else return value;
   }
