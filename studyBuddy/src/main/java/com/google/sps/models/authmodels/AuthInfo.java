@@ -3,7 +3,7 @@ This is class models information needed for a user to login and logout of to the
 
 Note: The Login Servlet returns a JSON response modeled like this class. 
 
-TODO: Add a method that generates the students's school from their email.       
+TODO down the road: Add some exception handling for some methods.       
 */
 
 package com.google.sps.models.authmodels;
@@ -22,6 +22,13 @@ public final class AuthInfo{
     }
 
     // Copy constructor
+    public AuthInfo(AuthInfo authInfo){
+        this.isLoggedIn = authInfo.getIsLoggedIn();
+        this.url = authInfo.getUrl();
+        this.email = authInfo.getEmail();
+    }
+
+    // Additional constructor that takes specific arguments.
     public AuthInfo(Boolean isLoggedIn, String url, String email){
         this.isLoggedIn = isLoggedIn;
         this.url = url;
@@ -43,11 +50,17 @@ public final class AuthInfo{
         return this.email;
     }
 
-    public void setLoginState(Boolean loginState){
-        this.isLoggedIn = loginState;
+    public void setIsLoggedIn(Boolean isLoggedIn){
+        this.isLoggedIn = isLoggedIn;
     }
+    public Boolean getIsLoggedIn(){
+        return this.isLoggedIn;
+    } 
 
     public void setUrl(String url){
         this.url = url;
+    }
+    public String getUrl(){
+        return this.url;
     }
 }

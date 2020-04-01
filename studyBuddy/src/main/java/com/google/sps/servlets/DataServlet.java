@@ -72,7 +72,6 @@ Handles POST request
     
     // Get selected subject from the POST request                       
     String subject = getParameter(request, "subject-select", "null");  // NOTE: (Query filters students by this subject)
-    
     /*TODO: Find a way to make this logic work
     // Checks if a subject was submitted
     if(subject == "null"){  
