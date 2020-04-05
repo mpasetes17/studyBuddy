@@ -31,19 +31,28 @@ async function getUser() {
     // Fetches Authentication info
     const response = await fetch('/login');
     const userLoginInfo = await response.json();
-    
-    // Creates an isLoggedIn boolean
-    const isLoggedIn = (userLoginInfo.isLoggedIn === "true");
-
     const email = userLoginInfo.email; 
+    
 
     //Determines if the user is logged in or not
-    if(isLoggedIn){
+    if(userLoginInfo.isLoggedIn){
         userInfo = document.getElementById("user-container")
-        userInfo.innerText = email;
+        userInfo.innerText = email + "\n";
+    }
+    else{
+        searchForm = document.getElementById("search-form")
+        html = "<p>Click <a href=\"" + userLoginInfo.url + "\">" +
+            "HERE</a> to log in before performing a search</p>";
+        searchForm.innerHTML = html;
     }
 }
 
-function setupLogin() {
-    
+async function setupLogin() {
+    const response = await fetch('/login')
+    const userLoginInfo = await response.json()
+    const login_btn = document.getElementById('login-btn')
+
+    html = "<a href=\"" + userLoginInfo.url + "\">";
+    html += (userLoginInfo.isLoggedIn) ? "Log Out" : "Log In";
+    login_btn.innerHTML = html + "</a>";
 }

@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="script.js"></script>
   </head>
-  <body>
+  <body onload="getUser()">
     <div id="content">
       <h1>Search for a Buddy</h1>
       <div class ="row">
@@ -14,9 +14,8 @@
             <form id="search-form" action="/matches" method="POST" class="blackBorder">
                 <p>Searching As:</p>
                 <div id="user-container">
-                    <!-- TODO: fill this field with log in data -->
-                    <p>&emsp;John Doe</br>&emsp;jdoe@university.edu</p>
                 </div>
+                </br>
                 <label>Subject Area:</label>
                 </br>
                 <select id="subject-select" name="subject-select">
