@@ -40,4 +40,10 @@
 
 img {
     border-radius: 50%;
+    width: 150px;
+
+}
+
+img:hover {
+    box-shadow: 0px -5px 30px blue;
 }

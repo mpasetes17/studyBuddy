@@ -30,10 +30,14 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gson.Gson; 
 
-import com.google.sps.models.Student;
+import com.google.sps.models.entitymodels.Student;
+import com.google.sps.models.authmodels.AuthInfo;
 
 @WebServlet("/matches")
 public class DataServlet extends HttpServlet {
@@ -42,14 +46,15 @@ public class DataServlet extends HttpServlet {
 /******************************************************************
 Queries DataStore and returns a Json formatted String of the result
 ********************************************************************/
-private String QueryDataStore(String subject){
-    // TODO Integrate UserService
-    final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-    
-    // Querying         TODO : Integrate Filtering by School
-    Filter subject_filter = new FilterPredicate("subject", FilterOperator.EQUAL, subject);
+private String QueryDataStore(String subject, DatastoreService datastore, AuthInfo loggedInUserInfo){
+    // Prepare Filters
+    Filter by_subject = new FilterPredicate("subject", FilterOperator.EQUAL, subject);
+    Filter by_school = new FilterPredicate("school", FilterOperator.EQUAL, loggedInUserInfo.getSchool());
+    Filter by_school_and_subject = CompositeFilterOperator.and(by_school, by_subject);
+
+    // Create query and apply filter conditions
     Query query = new Query("Students");
-    query.setFilter(subject_filter);
+    query.setFilter(by_school_and_subject);
     query.addSort("timestamp", SortDirection.DESCENDING);
     PreparedQuery results = datastore.prepare(query); 
 
@@ -69,42 +74,54 @@ Handles POST request
 ********************/
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException{
-    // TODO Integrate UserService
-    final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-
-    // Get selected subject from the POST request                       
-    String subject = getParameter(request, "subject-select", "null");  // NOTE: (Query filters students by this subject)
     
-    // Find matches for the current user
-    String matches = QueryDataStore(subject);
-
-    // Create current student entity
-    Entity student_entity = createStudentEntity(subject);
-
-    // Append current student in datastore
-    datastore.put(student_entity);
+    // Get Authentic User's Loggin Information
+    UserService userService = UserServiceFactory.getUserService();
 
     // Return a JSON response of the results
     response.setContentType("application/json;");
     response.getWriter().println(matches);
+    
+    if(userService.isUserLoggedIn()){
 
-    // Send redirect to the search.html to show the results in the search page
-    //response.sendRedirect("/search.html");
+        // Prepares all needed information                       
+        String subject = getParameter(request, "subject-select", "null");  // NOTE: (Query filters students by this subject)
+        AuthInfo loginInfo = new AuthInfo();
+        loginInfo.setEmail(userService.getCurrentUser().getEmail());
 
+        // Access Datastore Services
+        final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+        // Find matches for the current user
+        String matches = QueryDataStore(subject, datastore, loginInfo);
+
+        // Create current student entity
+        Entity student_entity = createStudentEntity(subject, loginInfo);
+        
+        // Append current student in datastore
+        datastore.put(student_entity);
+
+        // Return a JSON response of the results
+        response.setContentType("application/json;");
+        response.getWriter().println(matches);
+    }else{
+        String loginLink = userService.createLoginURL("/");
+        response.sendRedirect(loginLink);
+    }    
   }
 
 /**************************************************
 Takes Entity properties and returns a Student entity 
 based on the properties.
 ***************************************************/
-private Entity createStudentEntity(String subject){
-    // TODO: replace hard-coded email and school with real ones  
+private Entity createStudentEntity(String subject, AuthInfo loginInfo){
+    // TODO: replace hardcoded school with real ones  
 
     Entity stu_entity = new Entity("Students");
     stu_entity.setProperty("first_name", "NULL");
     stu_entity.setProperty("last_name", "NULL");
-    stu_entity.setProperty("email", "jdoe@university.edu");
-    stu_entity.setProperty("school", "university");
+    stu_entity.setProperty("email", loginInfo.getEmail());
+    stu_entity.setProperty("school", loginInfo.getSchool());
     stu_entity.setProperty("subject", subject);
     stu_entity.setProperty("timestamp", System.currentTimeMillis());
 
@@ -146,8 +163,8 @@ if defined, otherwise returns default value
 ****************************************************/
  private String getParameter(HttpServletRequest request, String value_name, String defaultValue){
       String value = request.getParameter(value_name);
-
-      if(value == null){
+    
+      if(value == ""){
           return defaultValue;
       }else return value;
   }

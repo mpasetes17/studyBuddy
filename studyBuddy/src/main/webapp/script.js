@@ -14,21 +14,6 @@
 
 
 /**
- * Adds a random greeting to the page.
- */
-function addRandomGreeting() {
-  const greetings =
-      ['Hello world!', '¡Hola Mundo!', '你好，世界！', 'Bonjour le monde!'];
-
-  // Pick a random greeting.
-  const greeting = greetings[Math.floor(Math.random() * greetings.length)];
-
-  // Add it to the page.
-  const greetingContainer = document.getElementById('greeting-container');
-  greetingContainer.innerText = greeting;
-}
-
-/**
  * Fetches the information to put in the html from our data
  */
 function getTable() {
@@ -42,21 +27,12 @@ function getTable() {
         });
 }
 
+/*
+ * Prevents the page from redirecting upon submitting their subject of choice
+ */
 function pageSetup(){
     document.getElementById("search-button").addEventListener("click", function(event){
         event.preventDefault();
         getTable();
     });
 }
-
-/*
-*   many thoughts many prayers
-
-function getTable2(){
-    fetch('/matches', {method: "POST"}).then(response => response.json())
-        .then(function (data){
-            const tCont = document.getElementById('search-results');
-             tCont.innterText=data;
-        })
-}
-*/
