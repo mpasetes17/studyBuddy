@@ -80,7 +80,6 @@ Handles POST request
 
     // Return a JSON response of the results
     response.setContentType("application/json;");
-    response.getWriter().println(matches);
     
     if(userService.isUserLoggedIn()){
 
