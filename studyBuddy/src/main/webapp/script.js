@@ -26,3 +26,20 @@ function addRandomGreeting() {
   const greetingContainer = document.getElementById('greeting-container');
   greetingContainer.innerText = greeting;
 }
+
+async function getUser() {
+    // Fetches Authentication info
+    const response = await fetch('/login');
+    const userLoginInfo = await response.json();
+    
+    // Creates an isLoggedIn boolean
+    const isLoggedIn = (userLoginInfo.isLoggedIn === "true");
+
+    const email = userLoginInfo.email; 
+
+    //Determines if the user is logged in or not
+    if(isLoggedIn){
+        userInfo = document.getElementById("user-container")
+        userInfo.innerText = email;
+    }
+}
