@@ -6,12 +6,12 @@
     <link rel="stylesheet" href="style.css">
     <script src="script.js"></script>
   </head>
-  <body>
+  <body onload = "pageSetup()" >
     <div id="content">
       <h1>Search for a Buddy</h1>
       <div class ="row">
           <div class="column left">
-            <form id="search-form" action="/matches" method="POST" class="blackBorder">
+            <form id="search-form" action="/matches" class="blackBorder">
                 <p>Searching As:</p>
                 <div id="user-container">
                     <!-- TODO: fill this field with log in data -->
@@ -43,7 +43,7 @@
                     </option>
                 </select>
                 </br></br>
-                <input type="submit"/>
+                <input type="submit" id="search-button"/>
             </form>
           </div>
           <div class="column right">
