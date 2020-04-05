@@ -28,19 +28,35 @@ function addRandomGreeting() {
   greetingContainer.innerText = greeting;
 }
 
-/*
- * Get the subject from html
- */
-function getSubject(){
-    //get the subject to send to our servlet
-}
-
 /**
  * Fetches the information to put in the html from our data
  */
 function getTable() {
-fetch('/data', {method: "POST"}).then(response => response.json()).then((myData) => {
-    const tableContainer = document.getElementById('search-results');
-    console.log("myData in getTable()" + myData);
-    tableContainer.innerText = myData; });
+    fetch('/matches', {method: "POST"}).then(response => response.json()).then((myData) => {
+        const tableContainer = document.getElementById('search-results');
+        console.log("myData in getTable()" + myData);
+        tableContainer.innerText = ("");
+        for(i=0; i<myData.length; i++){
+          tableContainer.innerText += (myData[i].firstName + " " + myData[i].lastName + " " + myData[i].school + " " + myData[i].subject + "\n");
+        }
+        });
 }
+
+function pageSetup(){
+    document.getElementById("search-button").addEventListener("click", function(event){
+        event.preventDefault();
+        getTable();
+    });
+}
+
+/*
+*   many thoughts many prayers
+
+function getTable2(){
+    fetch('/matches', {method: "POST"}).then(response => response.json())
+        .then(function (data){
+            const tCont = document.getElementById('search-results');
+             tCont.innterText=data;
+        })
+}
+*/
