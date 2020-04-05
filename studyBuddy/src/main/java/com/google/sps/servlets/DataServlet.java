@@ -41,7 +41,6 @@ import com.google.sps.models.authmodels.AuthInfo;
 @WebServlet("/matches")
 public class DataServlet extends HttpServlet {
 
-
 /******************************************************************
 Queries DataStore and returns a Json formatted String of the result
 ********************************************************************/
@@ -78,7 +77,6 @@ Handles POST request
     // Get Authentic User's Loggin Information
     UserService userService = UserServiceFactory.getUserService();
 
-    
     if(userService.isUserLoggedIn()){
 
         // Prepares all needed information                       
