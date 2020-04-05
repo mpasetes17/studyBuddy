@@ -29,6 +29,7 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterPredicate;
 import com.google.appengine.api.datastore.Query.FilterOperator;
+import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -44,12 +45,16 @@ public class DataServlet extends HttpServlet {
 /******************************************************************
 Queries DataStore and returns a Json formatted String of the result
 ********************************************************************/
-private String QueryDataStore(String subject, DatastoreService datastore){
+private String QueryDataStore(String subject, DatastoreService datastore, AuthInfo loggedInUserInfo){
     
-    // Querying         TODO : Integrate Filtering by School
-    Filter subject_filter = new FilterPredicate("subject", FilterOperator.EQUAL, subject);
+    // Prepare Filters
+    Filter by_subject = new FilterPredicate("subject", FilterOperator.EQUAL, subject);
+    Filter by_school = new FilterPredicate("school", FilterOperator.EQUAL, loggedInUserInfo.getSchool());
+    Filter by_school_and_subject = CompositeFilterOperator.and(by_school, by_subject);
+
+    // Create query and apply filter conditions
     Query query = new Query("Student");
-    query.setFilter(subject_filter);
+    query.setFilter(by_school_and_subject);
     query.addSort("timestamp", SortDirection.DESCENDING);
     PreparedQuery results = datastore.prepare(query); 
 
@@ -70,30 +75,24 @@ Handles POST request
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException{
     
-    // Get selected subject from the POST request                       
-    String subject = getParameter(request, "subject-select", "null");  // NOTE: (Query filters students by this subject)
-    /*TODO: Find a way to make this logic work
-    // Checks if a subject was submitted
-    if(subject == "null"){  
-        response.setContentType("application/json;");
-        response.getWriter().println("Error: No Subject Submitted!");
-        return;
-    }
-    */
-
-    // Access Datastore Services
-    final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-
-    // Find matches for the current user
-    String matches = QueryDataStore(subject, datastore);
-
     // Get Authentic User's Loggin Information
     UserService userService = UserServiceFactory.getUserService();
+
+    
     if(userService.isUserLoggedIn()){
 
-        // Create current student entity
+        // Prepares all needed information                       
+        String subject = getParameter(request, "subject-select", "null");  // NOTE: (Query filters students by this subject)
         AuthInfo loginInfo = new AuthInfo();
         loginInfo.setEmail(userService.getCurrentUser().getEmail());
+
+        // Access Datastore Services
+        final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+        // Find matches for the current user
+        String matches = QueryDataStore(subject, datastore, loginInfo);
+
+        // Create current student entity
         Entity student_entity = createStudentEntity(subject, loginInfo);
         
         // Append current student in datastore
@@ -119,7 +118,7 @@ private Entity createStudentEntity(String subject, AuthInfo loginInfo){
     stu_entity.setProperty("first_name", "NULL");
     stu_entity.setProperty("last_name", "NULL");
     stu_entity.setProperty("email", loginInfo.getEmail());
-    stu_entity.setProperty("school", "NULL");
+    stu_entity.setProperty("school", loginInfo.getSchool());
     stu_entity.setProperty("subject", subject);
     stu_entity.setProperty("timestamp", System.currentTimeMillis());
 
