@@ -43,3 +43,7 @@ async function getUser() {
         userInfo.innerText = email;
     }
 }
+
+function setupLogin() {
+    
+}
