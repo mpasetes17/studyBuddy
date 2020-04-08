@@ -8,9 +8,17 @@
   </head>
   <body onload="getUser()">
     <div id="content">
-      <h1>Search for a Buddy</h1>
-      <div class ="row">
-          <div class="column left">
+        <div class="sidenav" >
+            <a href="index.html">Home</a>
+            <a href="search.html">Search for a Buddy</a>
+            <a href="#">My Profile</a>
+            <a href="index.html">Log out</a>
+        </div>
+    </div>
+    <div class="main">
+        <h1>Search for a Buddy</h1>
+        <div class ="row">
+          <div>
             <form id="search-form" action="/matches" method="POST" class="blackBorder">
                 <p>Searching As:</p>
                 <div id="user-container">
@@ -45,13 +53,11 @@
                 <input type="submit"/>
             </form>
           </div>
-          <div class="column right">
-              <a href="index.html">Log out</a>
-          </div>
-      </div>
-      <div id="search-results" class="blackBorder">
+        </div>
+        <div id="search-results" class="blackBorder">
           <p>SEARCH RESULTS RETURNED HERE</p>
-      </div>
-    </div>
+        </div>
+        </div>
+        </div>
   </body>
 </html>
