@@ -38,6 +38,9 @@ async function getUser() {
     if(userLoginInfo.isLoggedIn){
         userInfo = document.getElementById("user-container")
         userInfo.innerText = email + "\n";
+
+        hellomsg = document.getElementById("hello-msg")
+        hellomsg.innerText = "  Hi, " + email.substring0, email.indexOf("@");
     }
     else{
         searchForm = document.getElementById("search-form")
@@ -53,6 +56,14 @@ async function setupLogin() {
     const login_btn = document.getElementById('login-btn')
 
     html = "<a href=\"" + userLoginInfo.url + "\">";
-    html += (userLoginInfo.isLoggedIn) ? "Log Out" : "Log In";
+    if(userLoginInfo.isLoggedIn) {
+        html += "Log Out";
+        const email = userLoginInfo.email;
+        hellomsg = document.getElementById("hello-msg")
+        hellomsg.innerText = "Hi, " + email.substring(0, email.indexOf("@"));
+    }
+    else {
+        html += "Log In";
+    }
     login_btn.innerHTML = html + "</a>";
 }
