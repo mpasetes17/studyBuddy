@@ -81,6 +81,7 @@ async function setupLogin() {
  * Prevents the page from redirecting upon submitting their subject of choice
  */
 function pageSetup(){
+    getUser();
     document.getElementById("search-button").addEventListener("click", function(event){
         event.preventDefault();
         getTable();
