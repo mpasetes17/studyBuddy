@@ -20,11 +20,27 @@
                 <label>Subject Area:</label>
                 </br>
                 <select id="subject-select" name="subject-select">
-                    <option value=>--SUBJECT--</option>
+                    <option disabled>--SUBJECT--</option>
                     <option value="computer science">Computer Science</option>
                     <option value="english">English</option>
                     <option value="math">Math</option>
                     <option value="physics">Physics</option>
+                </select>
+                </br></br>
+                <label>Make My Search Viewable to:</label>
+                </br>
+                <select id="privacy-select" name="privacy-select">
+                    <option value="1" type="number">
+                        Anyone who is logged in
+                    </option>
+                    <option value="2" type="number">
+                        Anyone within the same 
+                        top-level domain (.com, .edu, etc.)
+                    </option>
+                    <option value="3" type="number">
+                        Anyone with the exact same email domain 
+                        (@gmail.com, @university.edu, etc.)
+                    </option>
                 </select>
                 </br></br>
                 <input type="submit" id="search-button"/>
