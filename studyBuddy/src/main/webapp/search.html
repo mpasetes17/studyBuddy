@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="script.js"></script>
   </head>
+<<<<<<< HEAD
   <body onload="getUser()">
     <div id="content">
         <div class="sidenav" >
@@ -21,6 +22,14 @@
         <div class ="row">
           <div>
             <form id="search-form" action="/matches" method="POST" class="blackBorder">
+=======
+  <body onload = "pageSetup()" >
+    <div id="content">
+      <h1>Search for a Buddy</h1>
+      <div class ="row">
+          <div class="column left">
+            <form id="search-form" action="/matches" class="blackBorder">
+>>>>>>> master
                 <p>Searching As:</p>
                 <div id="user-container">
                 </div>
@@ -43,7 +52,7 @@
                     </option>
                     <option value="2">
                         Anyone within the same 
-                        top-leve domain (.com, .edu, etc.)
+                        top-level domain (.com, .edu, etc.)
                     </option>
                     <option value="3">
                         Anyone with the exact same email domain 
@@ -51,7 +60,11 @@
                     </option>
                 </select>
                 </br></br>
+<<<<<<< HEAD
                 <input type="submit"/>
+=======
+                <input type="submit" id="search-button"/>
+>>>>>>> master
             </form>
           </div>
         </div>

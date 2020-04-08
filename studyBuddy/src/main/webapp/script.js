@@ -12,19 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
 /**
- * Adds a random greeting to the page.
+ * Fetches the information to put in the html from our data
  */
-function addRandomGreeting() {
-  const greetings =
-      ['Hello world!', '¡Hola Mundo!', '你好，世界！', 'Bonjour le monde!'];
-
-  // Pick a random greeting.
-  const greeting = greetings[Math.floor(Math.random() * greetings.length)];
-
-  // Add it to the page.
-  const greetingContainer = document.getElementById('greeting-container');
-  greetingContainer.innerText = greeting;
+function getTable() {
+    fetch('/matches', {method: "POST"}).then(response => response.json()).then((myData) => {
+        const tableContainer = document.getElementById('search-results');
+        console.log("myData in getTable()" + myData);
+        tableContainer.innerText = ("");
+        for(i=0; i<myData.length; i++){
+          tableContainer.innerText += (myData[i].firstName + " " + myData[i].lastName + " " + myData[i].school + " " + myData[i].subject + "\n");
+        }
+        });
 }
 
 async function getUser() {
@@ -76,4 +76,13 @@ async function setupLogin() {
         html += "Log In";
     }
     login_btn.innerHTML = html + "</a>";
+}
+/*
+ * Prevents the page from redirecting upon submitting their subject of choice
+ */
+function pageSetup(){
+    document.getElementById("search-button").addEventListener("click", function(event){
+        event.preventDefault();
+        getTable();
+    });
 }
