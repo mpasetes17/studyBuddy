@@ -40,13 +40,22 @@ async function getUser() {
         userInfo.innerText = email + "\n";
 
         hellomsg = document.getElementById("hello-msg")
-        hellomsg.innerText = "  Hi, " + email.substring0, email.indexOf("@");
+        hellomsg.innerHTML =
+            "<p>&emsp;Hi, " + email.substring(0, email.indexOf("@")) + "</p>";
+
+        logout = document.getElementById("login-btn")
+        logout.innerHTML= "<a href=\"" + userLoginInfo.url + "\">" +
+            "Log Out</a>";
     }
     else{
         searchForm = document.getElementById("search-form")
         html = "<p>Click <a href=\"" + userLoginInfo.url + "\">" +
             "HERE</a> to log in before performing a search</p>";
         searchForm.innerHTML = html;
+
+        login = document.getElementById("login-btn")
+        login.innerHTML= "<a href=\"" + userLoginInfo.url + "\">" +
+            "Log In</a>";
     }
 }
 
@@ -60,7 +69,8 @@ async function setupLogin() {
         html += "Log Out";
         const email = userLoginInfo.email;
         hellomsg = document.getElementById("hello-msg")
-        hellomsg.innerText = "Hi, " + email.substring(0, email.indexOf("@"));
+        hellomsg.innerHTML =
+            "<p>&emsp;Hi, " + email.substring(0, email.indexOf("@")) + "</p>";
     }
     else {
         html += "Log In";
