@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Date;
+import java.lang.Integer;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -58,7 +59,7 @@ private String QueryDataStore(Student student, DatastoreService datastore){
     query.addSort("timestamp", SortDirection.DESCENDING);
     PreparedQuery results = datastore.prepare(query); 
 
-    ArrayList <Student> studentList = new ArrayList<>();
+    ArrayList<Student> studentList = new ArrayList<>();
 
     // Scan results and add them in the studentList
     for (Entity entity: results.asIterable()){
@@ -66,7 +67,23 @@ private String QueryDataStore(Student student, DatastoreService datastore){
         studentList.add(current_student);
     }
 
-return convertToJson(studentList);
+    ArrayList<Student> matches = privacy(studentList, student);
+
+/*
+    switch(student.getPrivacyLevel){
+        case 1:
+        studentList = leveOne(studentList);
+        break;
+        case 2:
+        studentList = leveTwo(studentList);
+        break;
+        case 3:
+        studentList = leveThree(studentList);
+        break;
+    }
+*/
+
+return convertToJson(matches);
 }
 
 /********************
@@ -81,8 +98,8 @@ Handles POST request
     if(userService.isUserLoggedIn()){
 
         // Prepares all needed information                       
-        String subject = getParameter(request, "subject-select", "null");  
-        String privacy_level = getParameter(request, "privacy-level", "null");
+        final String subject = getSubjectParameter(request, "subject-select", "null");  
+        final int privacy_level = getPrivacyParameter(request, "privacy-select", 0);
         Student loggedInStudent = new Student(
             userService.getCurrentUser().getNickname(),
             userService.getCurrentUser().getEmail(),
@@ -139,10 +156,10 @@ based on the entity.
       final String email = (String)theStudentEntity.getProperty("email");
       final String school = (String)theStudentEntity.getProperty("school");
       final String subject = (String)theStudentEntity.getProperty("subject");
-      final int privacy_level = (String)theStudentEntity.getProperty("privacy_level");
+      final long privacy_level = (long)theStudentEntity.getProperty("privacy_level");
       final long timestamp = (long)theStudentEntity.getProperty("timestamp");
 
-      return new Student(nickname, email, school, subject, timestamp, privacy_level);
+      return new Student(nickname, email, school, subject, privacy_level, timestamp);
   }
 
 /*************************************************
@@ -163,13 +180,76 @@ Parameters:
 Returns the value i.e(Subject) from the POST request
 if defined, otherwise returns default value 
 ****************************************************/
- private String getParameter(HttpServletRequest request, String value_name, String defaultValue){
+ private String getSubjectParameter(HttpServletRequest request, String value_name, String defaultValue){
       String value = request.getParameter(value_name);
-    
       if(value == ""){
           return defaultValue;
-      }else return value;
+      }
+      return value;
   }
 
+/***************************************************
+Parameters: 
+1. An HttpServletRequest
+2. A value_name
+3. A default value
+
+Returns the value i.e(privacy level) from the POST request
+if defined, otherwise returns default value 
+****************************************************/
+private int getPrivacyParameter(HttpServletRequest request, String value_name, int defaultValue){
+    int value = Integer.parseInt(request.getParameter(value_name));
+    if (value < 1 || value > 3){
+        return defaultValue;
+    }
+    return value;
 }
 
+
+private ArrayList<Student> privacy(ArrayList<Student> candidates, Student student){
+
+    if (candidates.isEmpty())
+        return candidates;
+
+    ArrayList<Student> selected = new ArrayList<>();
+    for (int i= 0; i < candidates.size() && selected.size() <= 7; i++){
+        if(candidates.get(i).getPrivacyLevel() == student.getPrivacyLevel()){
+        selected.add(candidates.get(i));    
+        }   
+    }
+    return selected;   
+}
+}
+
+/*
+/*************************
+Level one pivacy
+**************************
+List <Student> levelOne(List <Student> candidates){
+        List selected = new ArrayList();
+        for (int i= 0; i <= 7 || selected.size() <= 7; i++){
+            if(candidates[i].getPrivacyLevel() == 1){
+                selected.add(candidates[i]);    
+            }   
+        }   
+    }
+    return selected;
+}
+
+/*************************
+Level two pivacy
+**************************
+List <Student> levelTwo(List <Student> candidates){
+    if(candidates.size() <= 7){
+        return candidates;
+    }else{
+        List selected;
+        for (int i= 0; i <7; i++){
+            if(candidates[i].get)
+            selected.add(candidates[i]);
+        }
+    }
+    return selected;
+}
+
+*/

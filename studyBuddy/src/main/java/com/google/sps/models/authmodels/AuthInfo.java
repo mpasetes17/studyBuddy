@@ -76,7 +76,7 @@ public final class AuthInfo{
         return this.school;
     }
 
-    private Boolean validEmail(String email){
+    public static Boolean validEmail(String email){
         return email.contains("@") && email.contains(".");
     }
     
@@ -85,11 +85,11 @@ public final class AuthInfo{
     public static String getSchoolFrom(String email){
         try{
             if(validEmail(email) && (email.substring(email.indexOf("@")).substring(email.indexOf(".")) == ".edu")){
-                return email.substring(indexOf("@"));
+                return email.substring(email.indexOf("@"));
             }    
         }catch(Exception e){
             System.out.println("Invalid Email Input");
-            return "null";
         }
+        return "null";
     } 
 }

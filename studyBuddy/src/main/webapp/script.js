@@ -24,7 +24,7 @@ function getTable() {
         for(i=0; i<myData.length; i++){
           tableContainer.innerText += (myData[i].firstName + " " + myData[i].lastName + " " + myData[i].school + " " + myData[i].subject + "\n");
         }
-        });
+    });
 }
 
 /*

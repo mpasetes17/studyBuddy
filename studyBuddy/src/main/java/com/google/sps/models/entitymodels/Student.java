@@ -8,12 +8,12 @@ public final class Student{
     private String email;
     private String school;
     private String subject;
-    private int privacy_level;
+    private long privacy_level;
     private long timestamp;
 
     public Student(){};
  
-    public Student(String nickname, String email, String school, String subject, int privacy_level, long timestamp){
+    public Student(String nickname, String email, String school, String subject, long privacy_level, long timestamp){
         this.nickname = nickname;
         this.email = email;
         this.school = school;
@@ -32,5 +32,5 @@ public final class Student{
 
     public long getTimestamp(){return this.timestamp;}
 
-    public int getPrivacyLevel(){return this.privacy_level;}
+    public long getPrivacyLevel(){return this.privacy_level;}
 }
