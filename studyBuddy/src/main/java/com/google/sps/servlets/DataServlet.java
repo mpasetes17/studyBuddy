@@ -69,20 +69,6 @@ private String QueryDataStore(Student student, DatastoreService datastore){
 
     ArrayList<Student> matches = privacy(studentList, student);
 
-/*
-    switch(student.getPrivacyLevel){
-        case 1:
-        studentList = leveOne(studentList);
-        break;
-        case 2:
-        studentList = leveTwo(studentList);
-        break;
-        case 3:
-        studentList = leveThree(studentList);
-        break;
-    }
-*/
-
 return convertToJson(matches);
 }
 
@@ -205,9 +191,7 @@ private int getPrivacyParameter(HttpServletRequest request, String value_name, i
     return value;
 }
 
-
 private ArrayList<Student> privacy(ArrayList<Student> candidates, Student student){
-
     if (candidates.isEmpty())
         return candidates;
 
@@ -221,35 +205,3 @@ private ArrayList<Student> privacy(ArrayList<Student> candidates, Student studen
 }
 }
 
-/*
-/*************************
-Level one pivacy
-**************************
-List <Student> levelOne(List <Student> candidates){
-        List selected = new ArrayList();
-        for (int i= 0; i <= 7 || selected.size() <= 7; i++){
-            if(candidates[i].getPrivacyLevel() == 1){
-                selected.add(candidates[i]);    
-            }   
-        }   
-    }
-    return selected;
-}
-
-/*************************
-Level two pivacy
-**************************
-List <Student> levelTwo(List <Student> candidates){
-    if(candidates.size() <= 7){
-        return candidates;
-    }else{
-        List selected;
-        for (int i= 0; i <7; i++){
-            if(candidates[i].get)
-            selected.add(candidates[i]);
-        }
-    }
-    return selected;
-}
-
-*/
