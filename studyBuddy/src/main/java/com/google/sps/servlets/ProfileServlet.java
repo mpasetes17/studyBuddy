@@ -20,11 +20,11 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 import com.google.gson.Gson; 
 
-import com.google.sps.models.entitymodels.Student;
+import com.google.sps.models.entitymodels.Profile;
 import com.google.sps.models.authmodels.AuthInfo;
 
 @WebServlet("/profile")
-public class DataServlet extends HttpServlet {
+public class ProfileServlet extends HttpServlet {
 
     private String QueryDataStore(String email, DatastoreService datastore) {
         Filter email_filter = new FilterPredicate("email", FilterOperator.EQUAL, email);
@@ -114,13 +114,13 @@ public class DataServlet extends HttpServlet {
     }
 
     private Student createProfileFromEntity(Entity profile) {
-        final String first_name = (String)theStudentEntity.getProperty("first_name"); 
-        final String last_name = (String)theStudentEntity.getProperty("last_name");
-        final String email = (String)theStudentEntity.getProperty("email");
-        final String school = (String)theStudentEntity.getProperty("school");
-        final long timestamp = (long)theStudentEntity.getProperty("timestamp");
+        final String first_name = (String)profile.getProperty("first_name"); 
+        final String last_name = (String)profile.getProperty("last_name");
+        final String email = (String)profile.getProperty("email");
+        final String school = (String)profile.getProperty("school");
+        final long timestamp = (long)profile.getProperty("timestamp");
 
-        return new Profile(first_name, last_name, school, subject, timestamp);
+        return new Profile(first_name, last_name, school, timestamp);
     }
 
     private String convertToJson(ArrayList list){
