@@ -76,7 +76,21 @@ public final class AuthInfo{
         return this.school;
     }
 
-    private Boolean validEmail(String email){
+    public static Boolean validEmail(String email){
         return email.contains("@") && email.contains(".");
     }
+    
+    // Extracts School from email
+    // Example:  test@example.edu --> test[@example.edu] --> test@example[.edu]
+    public static String getSchoolFrom(String email){
+        System.out.println("\n\n\n" + email + "\n\n\n");
+        try{
+            if(validEmail(email)){
+                return email.substring(email.indexOf("@"));
+            }    
+        }catch(Exception e){
+            System.out.println("Invalid Email Input");
+        }
+        return "null";
+    } 
 }

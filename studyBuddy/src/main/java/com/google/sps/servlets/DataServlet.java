@@ -22,6 +22,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.Date;
+import java.lang.Integer;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
@@ -42,23 +44,22 @@ import com.google.sps.models.authmodels.AuthInfo;
 @WebServlet("/matches")
 public class DataServlet extends HttpServlet {
 
-
 /******************************************************************
 Queries DataStore and returns a Json formatted String of the result
 ********************************************************************/
-private String QueryDataStore(String subject, DatastoreService datastore, AuthInfo loggedInUserInfo){
+private String QueryDataStore(Student student, DatastoreService datastore){
     // Prepare Filters
-    Filter by_subject = new FilterPredicate("subject", FilterOperator.EQUAL, subject);
-    Filter by_school = new FilterPredicate("school", FilterOperator.EQUAL, loggedInUserInfo.getSchool());
+    Filter by_subject = new FilterPredicate("subject", FilterOperator.EQUAL, student.getSubject());
+    Filter by_school = new FilterPredicate("school", FilterOperator.EQUAL, student.getSchool());
     Filter by_school_and_subject = CompositeFilterOperator.and(by_school, by_subject);
 
     // Create query and apply filter conditions
-    Query query = new Query("Students");
+    Query query = new Query("Candidates");
     query.setFilter(by_school_and_subject);
     query.addSort("timestamp", SortDirection.DESCENDING);
     PreparedQuery results = datastore.prepare(query); 
 
-    ArrayList <Student> studentList = new ArrayList<>();
+    ArrayList<Student> studentList = new ArrayList<>();
 
     // Scan results and add them in the studentList
     for (Entity entity: results.asIterable()){
@@ -66,7 +67,9 @@ private String QueryDataStore(String subject, DatastoreService datastore, AuthIn
         studentList.add(current_student);
     }
 
-return convertToJson(studentList);
+    ArrayList<Student> matches = privacy(studentList, student);
+
+return convertToJson(matches);
 }
 
 /********************
@@ -78,24 +81,28 @@ Handles POST request
     // Get Authentic User's Loggin Information
     UserService userService = UserServiceFactory.getUserService();
 
-    // Return a JSON response of the results
-    response.setContentType("application/json;");
-    
     if(userService.isUserLoggedIn()){
 
         // Prepares all needed information                       
-        String subject = getParameter(request, "subject-select", "null");  // NOTE: (Query filters students by this subject)
-        AuthInfo loginInfo = new AuthInfo();
-        loginInfo.setEmail(userService.getCurrentUser().getEmail());
+        final String subject = getSubjectParameter(request, "subject-select", "null");  
+        final int privacy_level = getPrivacyParameter(request, "privacy-select", 0);
+        Student loggedInStudent = new Student(
+            userService.getCurrentUser().getNickname(),
+            userService.getCurrentUser().getEmail(),
+            AuthInfo.getSchoolFrom(userService.getCurrentUser().getEmail()),  // AuthInfo static method that takes in and returns a school 
+            subject, 
+            privacy_level, 
+            System.currentTimeMillis()
+        );
 
         // Access Datastore Services
         final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
         // Find matches for the current user
-        String matches = QueryDataStore(subject, datastore, loginInfo);
+        String matches = QueryDataStore(loggedInStudent, datastore);
 
         // Create current student entity
-        Entity student_entity = createStudentEntity(subject, loginInfo);
+        Entity student_entity = createStudentEntity(loggedInStudent);
         
         // Append current student in datastore
         datastore.put(student_entity);
@@ -113,16 +120,15 @@ Handles POST request
 Takes Entity properties and returns a Student entity 
 based on the properties.
 ***************************************************/
-private Entity createStudentEntity(String subject, AuthInfo loginInfo){
-    // TODO: replace hardcoded school with real ones  
+private Entity createStudentEntity(Student student){  
 
-    Entity stu_entity = new Entity("Students");
-    stu_entity.setProperty("first_name", "NULL");
-    stu_entity.setProperty("last_name", "NULL");
-    stu_entity.setProperty("email", loginInfo.getEmail());
-    stu_entity.setProperty("school", loginInfo.getSchool());
-    stu_entity.setProperty("subject", subject);
-    stu_entity.setProperty("timestamp", System.currentTimeMillis());
+    Entity stu_entity = new Entity("Candidates");
+    stu_entity.setProperty("nickname", student.getNickname());
+    stu_entity.setProperty("email", student.getEmail());
+    stu_entity.setProperty("school", student.getSchool());
+    stu_entity.setProperty("subject", student.getSubject());
+    stu_entity.setProperty("privacy_level", student.getPrivacyLevel());
+    stu_entity.setProperty("timestamp", student.getTimestamp());
 
     return stu_entity;    
 }
@@ -132,14 +138,14 @@ Takes a Student entity and returns a Student Object
 based on the entity.
 *****************************************************/
   private Student createStudentFromEntity(Entity theStudentEntity){
-      final String first_name = (String)theStudentEntity.getProperty("first_name"); 
-      final String last_name = (String)theStudentEntity.getProperty("last_name");
+      final String nickname = (String)theStudentEntity.getProperty("nickname");
       final String email = (String)theStudentEntity.getProperty("email");
       final String school = (String)theStudentEntity.getProperty("school");
       final String subject = (String)theStudentEntity.getProperty("subject");
+      final long privacy_level = (long)theStudentEntity.getProperty("privacy_level");
       final long timestamp = (long)theStudentEntity.getProperty("timestamp");
 
-      return new Student(first_name, last_name, school, subject, timestamp);
+      return new Student(nickname, email, school, subject, privacy_level, timestamp);
   }
 
 /*************************************************
@@ -160,13 +166,42 @@ Parameters:
 Returns the value i.e(Subject) from the POST request
 if defined, otherwise returns default value 
 ****************************************************/
- private String getParameter(HttpServletRequest request, String value_name, String defaultValue){
+ private String getSubjectParameter(HttpServletRequest request, String value_name, String defaultValue){
       String value = request.getParameter(value_name);
-    
       if(value == ""){
           return defaultValue;
-      }else return value;
+      }
+      return value;
   }
 
+/***************************************************
+Parameters: 
+1. An HttpServletRequest
+2. A value_name
+3. A default value
+
+Returns the value i.e(privacy level) from the POST request
+if defined, otherwise returns default value 
+****************************************************/
+private int getPrivacyParameter(HttpServletRequest request, String value_name, int defaultValue){
+    int value = Integer.parseInt(request.getParameter(value_name));
+    if (value < 1 || value > 3){
+        return defaultValue;
+    }
+    return value;
+}
+
+private ArrayList<Student> privacy(ArrayList<Student> candidates, Student student){
+    if (candidates.isEmpty())
+        return candidates;
+
+    ArrayList<Student> selected = new ArrayList<>();
+    for (int i= 0; i < candidates.size() && selected.size() <= 7; i++){
+        if(candidates.get(i).getPrivacyLevel() == student.getPrivacyLevel()){
+        selected.add(candidates.get(i));    
+        }   
+    }
+    return selected;   
+}
 }
 

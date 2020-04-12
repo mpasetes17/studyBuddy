@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="script.js"></script>
   </head>
-  <body onload="pageSetup()">
+  <body onload = "pageSetup()">
     <div id="content">
         <div class="sidenav" >
             <div id="hello-msg"></div>
@@ -29,25 +29,23 @@
                 </br>
                 <select id="subject-select" name="subject-select">
                     <option disabled>--SUBJECT--</option>
-                    <option value="computer science">Computer Science</option>
+                    <option value="computer_science">Computer Science</option>
                     <option value="english">English</option>
                     <option value="math">Math</option>
                     <option value="physics">Physics</option>
                 </select>
                 </br></br>
-                <label>Make My Search Viewable to:</label>
+                <label>Limit Search To:</label>
                 </br>
                 <select id="privacy-select" name="privacy-select">
                     <option value="1" type="number">
-                        Anyone who is logged in
+                        Anyone
                     </option>
                     <option value="2" type="number">
-                        Anyone within the same 
-                        top-level domain (.com, .edu, etc.)
+                        All Schools
                     </option>
                     <option value="3" type="number">
-                        Anyone with the exact same email domain 
-                        (@gmail.com, @university.edu, etc.)
+                        Only My School
                     </option>
                 </select>
                 </br></br>
