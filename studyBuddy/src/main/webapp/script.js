@@ -27,10 +27,61 @@ function getTable() {
         });
 }
 
+async function getUser() {
+    // Fetches Authentication info
+    const response = await fetch('/login');
+    const userLoginInfo = await response.json();
+    const email = userLoginInfo.email; 
+    
+
+    //Determines if the user is logged in or not
+    if(userLoginInfo.isLoggedIn){
+        userInfo = document.getElementById("user-container")
+        userInfo.innerText = email + "\n";
+
+        hellomsg = document.getElementById("hello-msg")
+        hellomsg.innerHTML =
+            "<p>&emsp;Hi, " + email.substring(0, email.indexOf("@")) + "</p>";
+
+        logout = document.getElementById("login-btn")
+        logout.innerHTML= "<a href=\"" + userLoginInfo.url + "\">" +
+            "Log Out</a>";
+    }
+    else{
+        searchForm = document.getElementById("search-form")
+        html = "<p>Click <a href=\"" + userLoginInfo.url + "\">" +
+            "HERE</a> to log in before performing a search</p>";
+        searchForm.innerHTML = html;
+
+        login = document.getElementById("login-btn")
+        login.innerHTML= "<a href=\"" + userLoginInfo.url + "\">" +
+            "Log In</a>";
+    }
+}
+
+async function setupLogin() {
+    const response = await fetch('/login')
+    const userLoginInfo = await response.json()
+    const login_btn = document.getElementById('login-btn')
+
+    html = "<a href=\"" + userLoginInfo.url + "\">";
+    if(userLoginInfo.isLoggedIn) {
+        html += "Log Out";
+        const email = userLoginInfo.email;
+        hellomsg = document.getElementById("hello-msg")
+        hellomsg.innerHTML =
+            "<p>&emsp;Hi, " + email.substring(0, email.indexOf("@")) + "</p>";
+    }
+    else {
+        html += "Log In";
+    }
+    login_btn.innerHTML = html + "</a>";
+}
 /*
  * Prevents the page from redirecting upon submitting their subject of choice
  */
 function pageSetup(){
+    getUser();
     document.getElementById("search-button").addEventListener("click", function(event){
         event.preventDefault();
         getTable();
