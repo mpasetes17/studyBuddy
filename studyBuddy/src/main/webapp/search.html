@@ -8,15 +8,23 @@
   </head>
   <body onload = "pageSetup()">
     <div id="content">
-      <h1>Search for a Buddy</h1>
-      <div class ="row">
-          <div class="column left">
+        <div class="sidenav" >
+            <div id="hello-msg"></div>
+            <a href="index.html">Home</a>
+            <a href="search.html">Search for a Buddy</a>
+            <a href="#">My Profile</a>
+            <div id="login-btn"></div>
+        </div>
+    </div>
+    <div class="main">
+        <h1>Search for a Buddy</h1>
+        <div class ="row">
+          <div>
             <form id="search-form" action="/matches" class="blackBorder">
                 <p>Searching As:</p>
                 <div id="user-container">
-                    <!-- TODO: fill this field with log in data -->
-                    <p>&emsp;John Doe</br>&emsp;jdoe@university.edu</p>
                 </div>
+                </br>
                 <label>Subject Area:</label>
                 </br>
                 <select id="subject-select" name="subject-select">
@@ -46,13 +54,12 @@
                 <input type="submit" id="seach-button"/>
             </form>
           </div>
-          <div class="column right">
-              <a href="index.html">Log out</a>
-          </div>
-      </div>
-      <div id="search-results" class="blackBorder">
+        </div>
+        </br>
+        <div id="search-results" class="blackBorder">
           <p>SEARCH RESULTS RETURNED HERE</p>
-      </div>
-    </div>
+        </div>
+        </div>
+        </div>
   </body>
 </html>
