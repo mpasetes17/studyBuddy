@@ -17,12 +17,21 @@
  * Fetches the information to put in the html from our data
  */
 function getTable() {
-    fetch('/matches', {method: "POST"}).then(response => response.json()).then((myData) => {
+    const sub = document.getElementById("subject-select").value;
+    const privacy = document.getElementById("privacy-select").value;
+    const searchUrl = "subject=" + sub + "&privacy-select=" + privacy;
+    fetch('/matches',
+        {  
+            method: "POST",
+            body: searchUrl,
+            headers: { 'Content-type': 'application/x-www-form-urlencoded' }
+         })
+         .then(response => response.json()).then((myData) => {
         const tableContainer = document.getElementById('search-results');
         console.log("myData in getTable()" + myData);
         tableContainer.innerText = ("");
         for(i=0; i<myData.length; i++){
-          tableContainer.innerText += (myData[i].firstName + " " + myData[i].lastName + " " + myData[i].school + " " + myData[i].subject + "\n");
+          tableContainer.innerText += (myData[i].nickname + " " + myData[i].email + " " + myData[i].school + " " + myData[i].timestamp + "\n");
         }
     });
 }

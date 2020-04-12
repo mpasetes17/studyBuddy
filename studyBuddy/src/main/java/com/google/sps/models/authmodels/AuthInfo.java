@@ -83,8 +83,9 @@ public final class AuthInfo{
     // Extracts School from email
     // Example:  test@example.edu --> test[@example.edu] --> test@example[.edu]
     public static String getSchoolFrom(String email){
+        System.out.println("\n\n\n" + email + "\n\n\n");
         try{
-            if(validEmail(email) && (email.substring(email.indexOf("@")).substring(email.indexOf(".")) == ".edu")){
+            if(validEmail(email)){
                 return email.substring(email.indexOf("@"));
             }    
         }catch(Exception e){
