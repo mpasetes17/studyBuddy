@@ -12,19 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+
 /**
- * Adds a random greeting to the page.
+ * Fetches the information to put in the html from our data
  */
-function addRandomGreeting() {
-  const greetings =
-      ['Hello world!', '¡Hola Mundo!', '你好，世界！', 'Bonjour le monde!'];
-
-  // Pick a random greeting.
-  const greeting = greetings[Math.floor(Math.random() * greetings.length)];
-
-  // Add it to the page.
-  const greetingContainer = document.getElementById('greeting-container');
-  greetingContainer.innerText = greeting;
+function getTable() {
+    const sub = document.getElementById("subject-select").value;
+    const privacy = document.getElementById("privacy-select").value;
+    const searchUrl = "subject=" + sub + "&privacy-select=" + privacy;
+    fetch('/matches',
+        {  
+            method: "POST",
+            body: searchUrl,
+            headers: { 'Content-type': 'application/x-www-form-urlencoded' }
+         })
+         .then(response => response.json()).then((myData) => {
+        const tableContainer = document.getElementById('search-results');
+        console.log("myData in getTable()" + myData);
+        tableContainer.innerText = ("");
+        for(i=0; i<myData.length; i++){
+          tableContainer.innerText += (myData[i].nickname + " " + myData[i].email + " " + myData[i].school + " " + myData[i].timestamp + "\n");
+        }
+    });
 }
 
 async function getUser() {
@@ -38,12 +47,24 @@ async function getUser() {
     if(userLoginInfo.isLoggedIn){
         userInfo = document.getElementById("user-container")
         userInfo.innerText = email + "\n";
+
+        hellomsg = document.getElementById("hello-msg")
+        hellomsg.innerHTML =
+            "<p>&emsp;Hi, " + email.substring(0, email.indexOf("@")) + "</p>";
+
+        logout = document.getElementById("login-btn")
+        logout.innerHTML= "<a href=\"" + userLoginInfo.url + "\">" +
+            "Log Out</a>";
     }
     else{
         searchForm = document.getElementById("search-form")
         html = "<p>Click <a href=\"" + userLoginInfo.url + "\">" +
             "HERE</a> to log in before performing a search</p>";
         searchForm.innerHTML = html;
+
+        login = document.getElementById("login-btn")
+        login.innerHTML= "<a href=\"" + userLoginInfo.url + "\">" +
+            "Log In</a>";
     }
 }
 
@@ -53,6 +74,25 @@ async function setupLogin() {
     const login_btn = document.getElementById('login-btn')
 
     html = "<a href=\"" + userLoginInfo.url + "\">";
-    html += (userLoginInfo.isLoggedIn) ? "Log Out" : "Log In";
+    if(userLoginInfo.isLoggedIn) {
+        html += "Log Out";
+        const email = userLoginInfo.email;
+        hellomsg = document.getElementById("hello-msg")
+        hellomsg.innerHTML =
+            "<p>&emsp;Hi, " + email.substring(0, email.indexOf("@")) + "</p>";
+    }
+    else {
+        html += "Log In";
+    }
     login_btn.innerHTML = html + "</a>";
+}
+/*
+ * Prevents the page from redirecting upon submitting their subject of choice
+ */
+function pageSetup(){
+    getUser();
+    document.getElementById("search-button").addEventListener("click", function(event){
+        event.preventDefault();
+        getTable();
+    });
 }

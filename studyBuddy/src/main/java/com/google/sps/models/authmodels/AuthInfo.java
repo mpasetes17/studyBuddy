@@ -8,17 +8,21 @@ TODO down the road: Add some exception handling for some methods.
 
 package com.google.sps.models.authmodels;
 
+import java.lang.String;
+
 public final class AuthInfo{
 
     private Boolean isLoggedIn;
     private String url;
     private String email;
+    private String school;
 
     // Constructor
     public AuthInfo(){
         this.isLoggedIn = false;
         this.url = "N/A";
         this.email = "N/A";
+        this.school = "N/A";
     }
 
     // Copy constructor
@@ -26,25 +30,29 @@ public final class AuthInfo{
         this.isLoggedIn = authInfo.getIsLoggedIn();
         this.url = authInfo.getUrl();
         this.email = authInfo.getEmail();
+        this.school = authInfo.getSchool();
     }
 
     // Additional constructor that takes specific arguments.
     public AuthInfo(Boolean isLoggedIn, String url, String email){
+        if(!validEmail(email)){return;}
         this.isLoggedIn = isLoggedIn;
-        this.url = url;
-        this.email = email;
+        this.url = url.trim();
+        this.email = email.trim();
+        this.school = email.substring(email.indexOf("@"), email.indexOf(".")).trim();
     }
 
     // An additional constructor (Should only be called if the user is logged out)
     // Takes the login url as an argument 
     public AuthInfo(String loginURL){
         this.isLoggedIn = false;
-        this.email = "N/A";
         this.url = loginURL;
     }
 
     public void setEmail(String email){
+        if(!validEmail(email)){return;}
         this.email = email;
+        this.school = email.substring(email.indexOf("@"), email.indexOf(".")).trim();
     }
     public String getEmail(){
         return this.email;
@@ -63,4 +71,26 @@ public final class AuthInfo{
     public String getUrl(){
         return this.url;
     }
+
+    public String getSchool(){
+        return this.school;
+    }
+
+    public static Boolean validEmail(String email){
+        return email.contains("@") && email.contains(".");
+    }
+    
+    // Extracts School from email
+    // Example:  test@example.edu --> test[@example.edu] --> test@example[.edu]
+    public static String getSchoolFrom(String email){
+        System.out.println("\n\n\n" + email + "\n\n\n");
+        try{
+            if(validEmail(email)){
+                return email.substring(email.indexOf("@"));
+            }    
+        }catch(Exception e){
+            System.out.println("Invalid Email Input");
+        }
+        return "null";
+    } 
 }

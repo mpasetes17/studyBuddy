@@ -6,12 +6,21 @@
     <link rel="stylesheet" href="style.css">
     <script src="script.js"></script>
   </head>
-  <body onload="getUser()">
+  <body onload = "pageSetup()">
     <div id="content">
-      <h1>Search for a Buddy</h1>
-      <div class ="row">
-          <div class="column left">
-            <form id="search-form" action="/matches" method="POST" class="blackBorder">
+        <div class="sidenav" >
+            <div id="hello-msg"></div>
+            <a href="index.html">Home</a>
+            <a href="search.html">Search for a Buddy</a>
+            <a href="#">My Profile</a>
+            <div id="login-btn"></div>
+        </div>
+    </div>
+    <div class="main">
+        <h1>Search for a Buddy</h1>
+        <div class ="row">
+          <div>
+            <form id="search-form" action="/matches" class="blackBorder">
                 <p>Searching As:</p>
                 <div id="user-container">
                 </div>
@@ -20,38 +29,35 @@
                 </br>
                 <select id="subject-select" name="subject-select">
                     <option disabled>--SUBJECT--</option>
-                    <option value="computer science">Computer Science</option>
+                    <option value="computer_science">Computer Science</option>
                     <option value="english">English</option>
                     <option value="math">Math</option>
                     <option value="physics">Physics</option>
                 </select>
                 </br></br>
-                <label>Make My Search Viewable to:</label>
+                <label>Limit Search To:</label>
                 </br>
                 <select id="privacy-select" name="privacy-select">
-                    <option value="1">
-                        Anyone who is logged in
+                    <option value="1" type="number">
+                        Anyone
                     </option>
-                    <option value="2">
-                        Anyone within the same 
-                        top-leve domain (.com, .edu, etc.)
+                    <option value="2" type="number">
+                        All Schools
                     </option>
-                    <option value="3">
-                        Anyone with the exact same email domain 
-                        (@gmail.com, @university.edu, etc.)
+                    <option value="3" type="number">
+                        Only My School
                     </option>
                 </select>
                 </br></br>
-                <input type="submit"/>
+                <input type="submit" id="search-button"/>
             </form>
           </div>
-          <div class="column right">
-              <a href="index.html">Log out</a>
-          </div>
-      </div>
-      <div id="search-results" class="blackBorder">
+        </div>
+        </br>
+        <div id="search-results" class="blackBorder">
           <p>SEARCH RESULTS RETURNED HERE</p>
-      </div>
-    </div>
+        </div>
+        </div>
+        </div>
   </body>
 </html>
