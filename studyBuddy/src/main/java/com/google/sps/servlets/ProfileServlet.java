@@ -6,10 +6,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.Filter;
@@ -28,17 +30,15 @@ public class ProfileServlet extends HttpServlet {
 
     private String QueryDataStore(String email, DatastoreService datastore) {
         Filter email_filter = new FilterPredicate("email", FilterOperator.EQUAL, email);
-        Query query = Query.newEntityQueryBuilder()
-                                .setKind("Profile")
-                                .setLimit(1)
-                           .build();
-        query.setFilter(email_filter);
-        query.addSort("timestamp", SortDirection.DESCENDING);
-        PreparedQuery results = datastore.prepare(query);
-        if(results == null)
+        Query query = new Query("Profile")
+                            .setFilter(email_filter)
+                            .addSort("timestamp", SortDirection.DESCENDING);
+        PreparedQuery profilesFound = datastore.prepare(query);
+        List<Entity> resultList = profilesFound.asList(FetchOptions.Builder.withLimit(1));
+        if(resultList.size() != 1)
             return null;
 
-        Profile profile = createProfileFromEntity(results.asSingleEntity());
+        Profile profile = createProfileFromEntity(resultList.get(0));
         Gson gson = new Gson();
         return gson.toJson(profile);
     }
@@ -50,13 +50,15 @@ public class ProfileServlet extends HttpServlet {
         String school = getParameter(request, "school", "null");
         String action = getParameter(request, "action", "findProfile");
 
-        if(action = "createProfile")
+        if(action.equalsIgnoreCase("createProfile")) {
             createProfile(request, response);
-        else
-            findProfile(response, response);
+        }
+        else {
+            findProfile(request, response);
+        }
     }
 
-    private void findProfile(HttpServletRequest request, HttpServletResponse response) {
+    private void findProfile(HttpServletRequest request, HttpServletResponse response) throws IOException{
         UserService userService = UserServiceFactory.getUserService();
         if(userService.isUserLoggedIn()){
 
@@ -68,35 +70,30 @@ public class ProfileServlet extends HttpServlet {
                 response.getWriter().println(existingProfile);
                 return;
             }
-            response.getWriter().println("no profile found");
+            response.getWriter().println("{\"result\":" + "\"no profile found\"}");
         }
         else
-            response.getWriter().println("need to be logged in");    
+            response.getWriter().println("{\"result\":" + "\"no profile found\"}");    
     }
 
-    private void createProfile(HttpServletRequest request, HttpServletResponse response) {
+    private void createProfile(HttpServletRequest request, HttpServletResponse response) throws IOException{
         UserService userService = UserServiceFactory.getUserService();
         if(userService.isUserLoggedIn()){
-
             String email = userService.getCurrentUser().getEmail();
             final DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-            String existingProfile = QueryDataStore(email, datastore);
-            if (existingProfile != null) {
-                response.setContentType("application/json;");
-                response.getWriter().println(existingProfile);
-                return;
-            }
         
             AuthInfo loginInfo = new AuthInfo();
             loginInfo.setEmail(email);
-            Entity profile = createProfileEntity(subject, loginInfo);
+            final String firstName = getParameter(request, "first-name", "Study");
+            final String lastName = getParameter(request, "last-name", "Buddy");
+            final String school = getParameter(request, "school", "???");
+            Entity profile = createProfileEntity(firstName, lastName, school, loginInfo);
             datastore.put(profile);
-            String createdProfile = QueryDataStore(email, datastore);
             response.setContentType("application/json;");
-            response.getWriter().println(createdProfile);
+            response.getWriter().println(convertToJson(profile));
         }
         else
-            response.getWriter().println("need to be logged in");  
+            response.getWriter().println("{\"result\":" + "\"no profile found\"}");  
     }
 
     private Entity createProfileEntity( String firstName,
@@ -113,19 +110,19 @@ public class ProfileServlet extends HttpServlet {
         return profile;    
     }
 
-    private Student createProfileFromEntity(Entity profile) {
+    private Profile createProfileFromEntity(Entity profile) {
         final String first_name = (String)profile.getProperty("first_name"); 
         final String last_name = (String)profile.getProperty("last_name");
         final String email = (String)profile.getProperty("email");
         final String school = (String)profile.getProperty("school");
         final long timestamp = (long)profile.getProperty("timestamp");
 
-        return new Profile(first_name, last_name, school, timestamp);
+        return new Profile(first_name, last_name, school, email, timestamp);
     }
 
-    private String convertToJson(ArrayList list){
+    private String convertToJson(Entity profile){
         Gson gson = new Gson();
-        return gson.toJson(list);
+        return gson.toJson(profile);
     }
 
     private String getParameter(HttpServletRequest request, String value_name, String defaultValue){

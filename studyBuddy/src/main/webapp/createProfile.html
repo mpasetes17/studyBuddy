@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Study Buddy Search</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+  </head>
+  <body onload = "setupCreate()">
+    <div id="content">
+        <div class="sidenav" >
+            <div id="hello-msg"></div>
+            <a href="index.html">Home</a>
+            <a href="search.html">Search for a Buddy</a>
+            <a href="profile.html">My Profile</a>
+            <div id="login-btn"></div>
+        </div>
+    </div>
+    <div class="main">
+        <h1>Create Profile</h1>
+        <div class ="row">
+          <div>
+            <form id="search-form" action="/profile" class="blackBorder">
+                <textarea name="first-name" id="first-name">First Name</textarea>
+                </br>
+                <textarea name="last-name" id="last-name">Last Name</textarea>
+                </br>
+                <textarea name="school" id="school">School</textarea>
+                </br></br>
+                <input type="submit" id="create-button"/>
+            </form>
+          </div>
+        </div>
+        </br>
+  </body>
+</html>
