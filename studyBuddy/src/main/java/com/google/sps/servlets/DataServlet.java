@@ -51,6 +51,7 @@ private String QueryDataStore(Student student, DatastoreService datastore){
     // Prepare Filters
     Filter by_subject = new FilterPredicate("subject", FilterOperator.EQUAL, student.getSubject());
     Filter by_school = new FilterPredicate("school", FilterOperator.EQUAL, student.getSchool());
+   // Filter by_email = new FilterPredicate("email", FilterOperator.NOT_EQUAL, student.getEmail());   // TODO: replace this with a byID filter
     Filter by_school_and_subject = CompositeFilterOperator.and(by_school, by_subject);
 
     // Create query and apply filter conditions
@@ -84,12 +85,15 @@ Handles POST request
     if(userService.isUserLoggedIn()){
 
         // Prepares all needed information                       
-        final String subject = getSubjectParameter(request, "subject-select", "null");  
+        final String subject = getSubjectParameter(request, "subject-select", "null");
+        System.out.println("\n\n\n" + subject + "\n\n\n") ; 
         final int privacy_level = getPrivacyParameter(request, "privacy-select", 0);
+
+        final String email = userService.getCurrentUser().getEmail();
         Student loggedInStudent = new Student(
-            userService.getCurrentUser().getNickname(),
-            userService.getCurrentUser().getEmail(),
-            AuthInfo.getSchoolFrom(userService.getCurrentUser().getEmail()),  // AuthInfo static method that takes in and returns a school 
+            email.substring(0, email.indexOf('@')),
+            email,
+            AuthInfo.getSchoolFrom(email),  // AuthInfo static method that takes in and returns a school 
             subject, 
             privacy_level, 
             System.currentTimeMillis()
@@ -167,11 +171,10 @@ Returns the value i.e(Subject) from the POST request
 if defined, otherwise returns default value 
 ****************************************************/
  private String getSubjectParameter(HttpServletRequest request, String value_name, String defaultValue){
-      String value = request.getParameter(value_name);
-      if(value == ""){
-          return defaultValue;
-      }
-      return value;
+        String value = request.getParameter(value_name);
+        if (value == ""){
+            return defaultValue;
+        }else return value;
   }
 
 /***************************************************
@@ -191,17 +194,21 @@ private int getPrivacyParameter(HttpServletRequest request, String value_name, i
     return value;
 }
 
+/******************************
+Selects up to 7 matches for the 
+studenst based on privacy levels
+*******************************/
 private ArrayList<Student> privacy(ArrayList<Student> candidates, Student student){
-    if (candidates.isEmpty())
-        return candidates;
+        if (candidates.isEmpty())
+            return candidates;
 
-    ArrayList<Student> selected = new ArrayList<>();
-    for (int i= 0; i < candidates.size() && selected.size() <= 7; i++){
-        if(candidates.get(i).getPrivacyLevel() == student.getPrivacyLevel()){
-        selected.add(candidates.get(i));    
-        }   
+        ArrayList<Student> selected = new ArrayList<>();
+        for (int i= 0; i < candidates.size() && selected.size() <= 7; i++){
+            if(candidates.get(i).getPrivacyLevel() == student.getPrivacyLevel()){
+            selected.add(candidates.get(i));    
+            }   
+        }
+        return selected;   
     }
-    return selected;   
-}
 }
 
