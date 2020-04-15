@@ -86,7 +86,7 @@ public final class AuthInfo{
         System.out.println("\n\n\n" + email + "\n\n\n");
         try{
             if(validEmail(email)){
-                return email.substring(email.indexOf("@"));
+                return email.substring(email.indexOf("@") + 1);
             }    
         }catch(Exception e){
             System.out.println("Invalid Email Input");

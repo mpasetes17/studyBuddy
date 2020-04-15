@@ -3,6 +3,32 @@
   margin-right: auto;
   width: 900px;
 }
+body{
+    background-color: #EEF2F7;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #055075;
+
+}
+
+.Single_Result_Block_Style{
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #EEF2F7;
+    margin-bottom: 10px;
+    list-style-type: none;
+}
+
+.Info_Style{
+    padding:1px;
+    margin: 2px;
+    border: solid #055075 inset;
+    color: black;
+}
+
+.Time_Style{
+    color: #055075;
+    font-size: 11px;
+}
 
 .row {
     display: flex;
@@ -35,7 +61,31 @@
 .blackBorder {
     border:1px solid #000;
     padding: 10px;
-    margin: 20x;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+.hide_element{
+    display: none;
+}
+
+.reveal_element{
+    display: inline;
+}
+
+#search-results{
+     box-shadow:
+  0 2.8px 2.2px rgba(0, 0, 0, 0.034),
+  0 6.7px 5.3px rgba(0, 0, 0, 0.048),
+  0 12.5px 10px rgba(0, 0, 0, 0.06),
+  0 22.3px 17.9px rgba(0, 0, 0, 0.072),
+  0 41.8px 33.4px rgba(0, 0, 0, 0.086),
+  0 100px 80px rgba(0, 0, 0, 0.12);
+
+  min-height: 200px;
+  background: white;
+  border:white;
+  border-radius: 5px;
+  width: 50vw;
 }
 
 img {
@@ -45,7 +95,7 @@ img {
 }
 
 img:hover {
-    box-shadow: 0px -5px 30px blue;
+    box-shadow: 0px -5px 30px  #055075;
 }
 
 /* The sidebar menu */
@@ -66,14 +116,14 @@ img:hover {
   padding: 6px 8px 6px 16px;
   text-decoration: none;
   font-size: 25px;
-  color: blue;
+  color:  #055075;
   display: block;
 }
 
 /* When you mouse over the navigation links, change their color */
 .sidenav a:hover {
   color: #dedede;
-  background-color: blue;
+  background-color:  #055075;
 }
 
 /* Style page content */
