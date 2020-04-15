@@ -114,11 +114,11 @@ async function getUser() {
     // Fetches Authentication info
     const response = await fetch('/login');
     const userLoginInfo = await response.json();
-    const email = userLoginInfo.email;
-    const username = email.substring(0, email.indexOf("@"));
     
     //Determines if the user is logged in or not
     if(userLoginInfo.isLoggedIn){
+        const email = userLoginInfo.email;
+        const username = email.substring(0, email.indexOf("@"));
         userInfo = document.getElementById("user-container")
         userInfo.innerText = username + "\n";
 
