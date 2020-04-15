@@ -51,7 +51,6 @@ private String QueryDataStore(Student student, DatastoreService datastore){
     // Prepare Filters
     Filter by_subject = new FilterPredicate("subject", FilterOperator.EQUAL, student.getSubject());
     Filter by_school = new FilterPredicate("school", FilterOperator.EQUAL, student.getSchool());
-   // Filter by_email = new FilterPredicate("email", FilterOperator.NOT_EQUAL, student.getEmail());   // TODO: replace this with a byID filter
     Filter by_school_and_subject = CompositeFilterOperator.and(by_school, by_subject);
 
     // Create query and apply filter conditions
