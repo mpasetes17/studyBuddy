@@ -1,7 +1,18 @@
-function getTable() {
+async function getTable() {
+    const profile = await fetch('/profile',
+            {  
+                method: "POST",
+                body: "first_name=?&last_name=?&school=?&action=findProfile",
+                headers: { 'Content-type': 'application/x-www-form-urlencoded' }
+            })
+                .then(response => response.json()).then((myData) => {
+            return myData;
+        });
+  
     const sub = document.getElementById("subject-select").value;
     const privacy = document.getElementById("privacy-select").value;
-    const searchUrl = "subject-select=" + sub + "&privacy-select=" + privacy;
+    const searchUrl = "first-name=" + profile.firstName + "&last-name=" +
+        profile.lastName + "&subject-select=" + sub + "&privacy-select=" + privacy;
     fetch('/matches',
         {  
             method: "POST",
@@ -10,7 +21,6 @@ function getTable() {
          })
          .then(response => response.json()).then((matches) => {
         const tableContainer = document.getElementById('search-results');
-        console.log("myData in getTable()" + matches);
 
         error = document.createElement("p");
         text = document.createTextNode("No matches at the moment, please try again later!");
@@ -50,7 +60,9 @@ function createResultBlock(student_info, position){
     const time = getTime(student_info.timestamp);
 
     // This is the data that will be shown for each student
-    const name = "Name: " + student_info.nickname;
+    const name = (student_info.firstName == undefined || student_info.lastName == undefined) ?
+        "Name: " + student_info.nickname :
+        "Name: " + student_info.firstName + " " + student_info.lastName;
     const school = "School: " + school_domain.substring(0 , school_domain.indexOf('.'));
     const email = "Contact: " + student_info.email;
     const time_comment = "Last Request made at " + time.hour + ":" + time.minute;
@@ -166,9 +178,7 @@ async function getProfile() {
             })
                 .then(response => response.json()).then((myData) => {
             const profileTable = document.getElementById('profile-data');
-            console.log(response);
             if(myData.result == "no profile found") {
-                console.log("no profile");
                 window.location.href = "createProfile.html";
             }
         });
