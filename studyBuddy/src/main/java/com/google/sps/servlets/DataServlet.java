@@ -84,13 +84,15 @@ Handles POST request
     if(userService.isUserLoggedIn()){
 
         // Prepares all needed information                       
-        final String subject = getSubjectParameter(request, "subject-select", "null");
-        System.out.println("\n\n\n" + subject + "\n\n\n") ; 
+        final String subject = getStringParameter(request, "subject-select", "null"); 
         final int privacy_level = getPrivacyParameter(request, "privacy-select", 0);
-
+        final String firstName = getStringParameter(request, "first-name", "Study");
+        final String lastName = getStringParameter(request, "last-name", "Buddy");
         final String email = userService.getCurrentUser().getEmail();
         Student loggedInStudent = new Student(
             email.substring(0, email.indexOf('@')),
+            firstName,
+            lastName,
             email,
             AuthInfo.getSchoolFrom(email),  // AuthInfo static method that takes in and returns a school 
             subject, 
@@ -127,6 +129,8 @@ private Entity createStudentEntity(Student student){
 
     Entity stu_entity = new Entity("Candidates");
     stu_entity.setProperty("nickname", student.getNickname());
+    stu_entity.setProperty("first_name", student.getFirstName());
+    stu_entity.setProperty("last_name", student.getLastName());
     stu_entity.setProperty("email", student.getEmail());
     stu_entity.setProperty("school", student.getSchool());
     stu_entity.setProperty("subject", student.getSubject());
@@ -142,13 +146,15 @@ based on the entity.
 *****************************************************/
   private Student createStudentFromEntity(Entity theStudentEntity){
       final String nickname = (String)theStudentEntity.getProperty("nickname");
+      final String firstName = (String)theStudentEntity.getProperty("first_name");
+      final String lastName = (String)theStudentEntity.getProperty("last_name");
       final String email = (String)theStudentEntity.getProperty("email");
       final String school = (String)theStudentEntity.getProperty("school");
       final String subject = (String)theStudentEntity.getProperty("subject");
       final long privacy_level = (long)theStudentEntity.getProperty("privacy_level");
       final long timestamp = (long)theStudentEntity.getProperty("timestamp");
 
-      return new Student(nickname, email, school, subject, privacy_level, timestamp);
+      return new Student(nickname, firstName, lastName, email, school, subject, privacy_level, timestamp);
   }
 
 /*************************************************
@@ -169,7 +175,7 @@ Parameters:
 Returns the value i.e(Subject) from the POST request
 if defined, otherwise returns default value 
 ****************************************************/
- private String getSubjectParameter(HttpServletRequest request, String value_name, String defaultValue){
+ private String getStringParameter(HttpServletRequest request, String value_name, String defaultValue){
         String value = request.getParameter(value_name);
         if (value == ""){
             return defaultValue;

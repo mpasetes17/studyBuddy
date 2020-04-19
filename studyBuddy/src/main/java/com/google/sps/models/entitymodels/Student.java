@@ -5,6 +5,8 @@ import com.google.sps.models.authmodels.AuthInfo;
 
 public final class Student{
     private String nickname;
+    private String firstName;
+    private String lastName;
     private String email;
     private String school;
     private String subject;
@@ -13,8 +15,10 @@ public final class Student{
 
     public Student(){};
  
-    public Student(String nickname, String email, String school, String subject, long privacy_level, long timestamp){
+    public Student(String nickname, String firstName, String lastName, String email, String school, String subject, long privacy_level, long timestamp){
         this.nickname = nickname;
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.email = email;
         this.school = school;
         this.subject = subject;
@@ -25,6 +29,10 @@ public final class Student{
     public String getNickname(){return this.nickname;}
 
     public String getEmail(){return this.email;}
+
+    public String getFirstName(){return this.firstName;}
+
+    public String getLastName(){return this.lastName;}
 
     public String getSchool(){return this.school;}
 
