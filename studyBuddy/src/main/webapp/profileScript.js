@@ -95,9 +95,8 @@ async function createProfile() {
                 headers: { 'Content-type': 'application/x-www-form-urlencoded' }
             })
                 .then(response => response.json()).then((myData) => {
-            const profileTable = document.getElementById('profile=data');
             console.log(response);
-            window.location.href = "profile.html";
+            window.location.href = "index.html";
         });
     }
     else {

@@ -165,6 +165,7 @@ async function setupLogin() {
  */
 function pageSetup(){
     getUser();
+    getProfile();
     document.getElementById("search-button").addEventListener("click", function(event){
         event.preventDefault();
         clearDiv('search-results');
@@ -193,5 +194,39 @@ async function loginMenu() {
         login = document.getElementById("login-btn")
         login.innerHTML= "<a href=\"" + userLoginInfo.url + "\">" +
             "Log In</a>";
+    }
+}
+
+/*
+ * Searches for profile and prompts for new one if not found
+ */
+async function getProfile() {
+    const response = await fetch('/login')
+    const userLoginInfo = await response.json()
+    if(userLoginInfo.isLoggedIn) {
+        fetch('/profile',
+            {  
+                method: "POST",
+                body: "first_name=?&last_name=?&school=?&action=findProfile",
+                headers: { 'Content-type': 'application/x-www-form-urlencoded' }
+            })
+                .then(response => response.json()).then((myData) => {
+            const profileTable = document.getElementById('profile-data');
+            console.log(response);
+            if(myData.result == "no profile found") {
+                console.log("no profile");
+                window.location.href = "createProfile.html";
+            }
+            else {
+                const html =  "<center><h2>" + myData.firstName + " " + 
+                                myData.lastName + "<h2></center>" +
+                              "<center><h2>" + myData.school + "<h2></center>" +
+                              "<a href=\"createProfile.html\">edit profile</a>";   
+                profileTable.innerHTML = html;
+            }
+        });
+    }
+    else {
+        window.location.href = userLoginInfo.url;
     }
 }
